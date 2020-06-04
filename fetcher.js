@@ -5,8 +5,6 @@
 // EXPECTED INPUT: node fetcher.js http://www.example.edu/ ./index.html
 // EXPECTED OUTPUT: Downloaded and saved 3261 bytes to ./index.html
 
-
-
 // Use the request library to make the HTTP request
 // Use Node's fs module to write the file
 // Use the callback based approach we've been learning so far
@@ -28,41 +26,41 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-request( url, (err, response, body) => {
-    if (err) console.log('error:', err);
-    if (!response || response.statusCode !== 200) {
-      console.log('Error! Valid url not provided');
-      process.exit()
+request(url, (err, response, body) => {
+  if (err) console.log('error:', err);
+  if (!response || response.statusCode !== 200) {
+    console.log('Error! Valid url not provided');
+    process.exit();
+  }
+  fs.access(localPath, fs.W_OK, (err) => {
+    if (err) {
+      console.log("Local path is not valid");
+      process.exit();
     }
-    fs.access(localPath, fs.W_OK, (err) => {
-      if (err) {
-        console.log("Local path is not valid")
-        process.exit()
-      }
-      if (fs.existsSync(localPath)) {
-        rl.question('local path already exists. \nOverwrite file? (Y or N + enter) ', (key) => {
-          if (key === 'Y') {
-            writeFile(body);
-          }
-          if (key === 'N') {
-            console.log('no file written\n')
-            process.exit();
-          }
-        })
-      } else {
-        writeFile(body);
-      }
-      })
+    if (fs.existsSync(localPath)) {
+      rl.question('local path already exists. \nOverwrite file? (Y or N + enter) ', (key) => {
+        if (key === 'Y') {
+          writeFile(body);
+        }
+        if (key === 'N') {
+          console.log('no file written\n');
+          process.exit();
+        }
+      });
+    } else {
+      writeFile(body);
+    }
   });
+});
   
-  const writeFile = (body) => {
-    fs.writeFile(`${localPath}`, body, err => {
-      if (err) return console.log(err);
-      request (url, (err, response) => {
-        const size = response.headers['content-length'];
-        if (err) console.log('error:', err,);
-        console.log(`Downloaded and saved ${size} bytes to .${localPath}`);
-        process.exit();
-      })
+const writeFile = (body) => {
+  fs.writeFile(`${localPath}`, body, err => {
+    if (err) return console.log(err);
+    request(url, (err, response) => {
+      const size = response.headers['content-length'];
+      if (err) console.log('error:', err,);
+      console.log(`Downloaded and saved ${size} bytes to .${localPath}`);
+      process.exit();
+    });
   });
-}
+};
