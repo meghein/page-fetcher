@@ -18,14 +18,17 @@ const fs = require("fs");
 const url = process.argv[2];
 const localPath = process.argv[3];
 
+const stdin = process.stdin;
+stdin.setRawMode(true);
+stdin.setEncoding('utf8');
 
-request( url, (err, response) => {
+request( url, (err, body) => {
   if (err) console.log('error:', error);
-  console.log(writeFile());
+  console.log(writeFile(body));
 });
 
-const writeFile = (() => {
-  fs.writeFile(`${localPath}`, `${url}`, function (err) {
+const writeFile = (body) => {
+  fs.writeFile(`${localPath}`, body, function (err) {
     if (err) return console.log(err);
     request (url, (err, response) => {
       const size = response.headers['content-length'];
@@ -33,4 +36,15 @@ const writeFile = (() => {
       console.log(`Downloaded and saved ${size} bytes to .${localPath}`);
     })
   });
-})
+}
+
+
+stdin.on('data', (key) => {
+  if (key === 'b') {
+  process.stdout.write('\rALARM');
+  }
+  if (key === '\u0003') {
+    console.log('Thanks for using me, ciao!');
+    process.exit();
+  }
+});
